@@ -1,8 +1,8 @@
 {
     "workspace.library": [
-        "/home/keven/.local/share/nvim/lazy/neodev.nvim/types/stable",
-        "/home/keven/nvim-linux64/share/nvim/runtime/lua",
-        "/home/keven/allProject/lua-project/im-select.nvim/lua",
+        "/home/fzkhzk/.local/share/nvim/lazy/neodev.nvim/types/stable",
+        "/home/fzkhzk/.local/share/nvim-linux64/share/nvim/runtime/lua",
+        "/home/fzkhzk/allProject/lua-project/smart-im-select.nvim/lua",
         "${3rd}/luv/library"
     ]
 }

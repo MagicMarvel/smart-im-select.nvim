@@ -2,7 +2,6 @@ local M = {}
 
 M.closed = false
 
--- needed
 local function all_trim(s)
     return s:match("^%s*(.-)%s*$")
 end
@@ -19,7 +18,6 @@ local function determine_os()
     end
 end
 
--- needed
 local function is_supported()
     local os = determine_os()
     -- macOS, Windows, WSL
@@ -37,7 +35,6 @@ local function is_supported()
     end
 end
 
--- needed
 -- local config
 local C = {
     -- im-select binary's name, or the binary's full path
@@ -52,7 +49,6 @@ local C = {
     async_switch_im = true,
 }
 
--- needed
 local function set_default_config()
     local current_os = determine_os()
     if current_os == "macOS" then
@@ -82,7 +78,6 @@ local function set_default_config()
 end
 
 
--- needed
 local function set_opts(opts)
     if opts == nil or type(opts) ~= "table" then
         return
@@ -119,7 +114,6 @@ local function set_opts(opts)
     end
 end
 
--- needed
 local function get_current_select(cmd)
     local command = {}
     if cmd:find("fcitx5-remote", 1, true) ~= nil then
@@ -132,7 +126,6 @@ local function get_current_select(cmd)
     return all_trim(vim.fn.system(command))
 end
 
--- needed
 local function change_im_select(cmd, method)
     local args = {}
     if cmd:find("fcitx5-remote", 1, true) then
@@ -193,6 +186,7 @@ end
 
 local last_node_type = nil
 
+-- get node right before user's cursor
 local function get_node_before_cursor()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
     -- because nvim_win_get_cursor is (1, 0)-indexed
@@ -209,7 +203,7 @@ local function get_node_before_cursor()
     return node
 end
 
-local function check_type_in_special(t)
+local function would_alternative_im_better(t)
     local special_type = { "comment", "comment_content", "string_content", "string" }
     for _, v in ipairs(special_type) do
         if t == v then
@@ -226,14 +220,16 @@ local function determine_which_IM_and_switch(ignore_last_node_type)
     end
     local current_node_type = current_node:type()
 
-    if check_type_in_special(current_node_type) then
-        if ignore_last_node_type or not check_type_in_special(last_node_type) then
+    -- when type comment or string, switch IM to alternative IM
+    if would_alternative_im_better(current_node_type) then
+        if ignore_last_node_type or not would_alternative_im_better(last_node_type) then
             switch_to_alternative_im()
         end
     end
 
-    if not check_type_in_special(current_node_type) then
-        if ignore_last_node_type or check_type_in_special(last_node_type) then
+    -- when type comment or string finish, switch IM to default IM
+    if not would_alternative_im_better(current_node_type) then
+        if ignore_last_node_type or would_alternative_im_better(last_node_type) then
             switch_to_default_im()
         end
     end
@@ -268,7 +264,6 @@ M.setup = function(opts)
             determine_which_IM_and_switch(true)
         end
     })
-
     vim.api.nvim_create_autocmd({ "TextChangedI" }, {
         callback = function()
             determine_which_IM_and_switch(false)
